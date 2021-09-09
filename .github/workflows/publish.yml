@@ -39,6 +39,6 @@ jobs:
           context: .
           push: true
           target: bare-z3
-          file: {context}/docker/ubuntu-20-04.Dockerfile
+          file: ./docker/ubuntu-20-04.Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
