@@ -12,16 +12,18 @@ jobs:
     steps:
       - uses: tgymnich/fork-sync@v1.4
         with:
-          base: master
+          owner: Z3Prover
           head: master
+          base: master
           merge_method: rebase
 
   # keep `tp-gh-action-docker-builds` up to date with upstream `master`
-  sync-docker-builds:
+  sync-docker-build-branch:
     runs-on: ubuntu-latest
     steps:
       - uses: tgymnich/fork-sync@v1.4
         with:
-          base: master
-          head: tp-gh-action-docker-builds
+          owner: Z3Prover
+          head: master
+          base: tp-gh-action-docker-builds
           merge_method: rebase
