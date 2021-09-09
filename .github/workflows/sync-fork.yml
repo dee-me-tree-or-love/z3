@@ -1,0 +1,27 @@
+name: Sync Fork
+
+on:
+  schedule:
+    - cron: '0 1 * * 6' # every Saturday at 1 am
+  workflow_dispatch: # on button click
+
+jobs:
+  # keep fork `master` up to date with upstream `master`
+  sync-master:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: tgymnich/fork-sync@v1.4
+        with:
+          base: master
+          head: master
+          merge_method: rebase
+
+  # keep `tp-gh-action-docker-builds` up to date with upstream `master`
+  sync-docker-builds:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: tgymnich/fork-sync@v1.4
+        with:
+          base: master
+          head: tp-gh-action-docker-builds
+          merge_method: rebase
