@@ -10,20 +10,26 @@ jobs:
   sync-master:
     runs-on: ubuntu-latest
     steps:
-      - uses: tgymnich/fork-sync@v1.4
+      - uses: tgymnich/fork-sync@v1.3
         with:
           owner: Z3Prover
           head: master
           base: master
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          personal_token: ${{ secrets.GH_PERSONAL_REPO_ACCESS_TOKEN }}
           merge_method: rebase
+          auto_approve: true
 
   # keep `tp-gh-action-docker-builds` up to date with upstream `master`
   sync-docker-build-branch:
     runs-on: ubuntu-latest
     steps:
-      - uses: tgymnich/fork-sync@v1.4
+      - uses: tgymnich/fork-sync@v1.3
         with:
           owner: Z3Prover
           head: master
           base: tp-gh-action-docker-builds
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          personal_token: ${{ secrets.GH_PERSONAL_REPO_ACCESS_TOKEN }}
           merge_method: rebase
+          auto_approve: true
