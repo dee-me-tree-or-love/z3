@@ -45,8 +45,6 @@ jobs:
           file: ./docker/ubuntu-20-04.Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=deemetree/z3-fork:buildcache
-          cache-to: type=registry,ref=deemetree/z3-fork:buildcache,mode=max
 
       # ------------------------------
       # Repo description on Docker Hub
