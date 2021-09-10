@@ -52,7 +52,7 @@ jobs:
       - name: Update repo description
         uses: peter-evans/dockerhub-description@v2
         with:
-          repository: deemetree/z3
+          repository: deemetree/z3-fork
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           short-description: ${{ github.event.repository.description }}
