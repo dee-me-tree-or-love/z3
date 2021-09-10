@@ -21,6 +21,8 @@ This contains Dockerfile's usable for creating Z3 images.
 >
 > sat
 > ```
+>
+> For more information about the available docker images, see [_Supported images_](#supported-images)
 
 ## Build context
 
