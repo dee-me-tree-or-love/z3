@@ -17,7 +17,7 @@ This contains Dockerfile's usable for creating Z3 images.
 > (check-sat)
 >
 > # -i flag allows to connect to standard input
-> $ cat examples/task1.smt2 | docker run --rm -i deemetree/> z3-fork:ubuntu-20.04-bare-z3-edge -in -smt2
+> $ cat examples/task1.smt2 | docker run --rm -i deemetree/z3-fork:ubuntu-20.04-bare-z3-edge -in -smt2
 >
 > sat
 > ```
