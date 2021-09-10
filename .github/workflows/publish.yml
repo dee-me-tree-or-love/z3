@@ -28,10 +28,10 @@ jobs:
         with:
           images: deemetree/z3-fork
           tags: |
-            type=schedule,prefix=bare-z3-ubuntu-20.04-,pattern={{date 'YYYYMMDD'}}
-            type=ref,event=branch,prefix=bare-z3-ubuntu-20.04-
-            type=ref,event=tag,prefix=bare-z3-ubuntu-20.04-
-            type=edge,prefix=bare-z3-ubuntu-20.04-
+            type=schedule,prefix=ubuntu-20.04-bare-z3-,pattern={{date 'YYYYMMDD'}}
+            type=ref,event=tag,prefix=ubuntu-20.04-bare-z3-
+            type=sha,prefix=ubuntu-20.04-bare-z3-
+            type=edge,prefix=ubuntu-20.04-bare-z3-
 
       - name: Build and push Bare Z3 Docker Image
         uses: docker/build-push-action@v2.7.0
@@ -42,3 +42,14 @@ jobs:
           file: ./docker/ubuntu-20-04.Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      # ------------------------------
+      # Repo description on Docker Hub
+      # ------------------------------
+      - name: Update repo description
+        uses: peter-evans/dockerhub-description@v2
+        with:
+          repository: deemetree/z3
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          short-description: ${{ github.event.repository.description }}
