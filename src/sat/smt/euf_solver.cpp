@@ -479,16 +479,17 @@ namespace euf {
             if (s().inconsistent())
                 return sat::check_result::CR_CONTINUE;
         }
-        if (m_qsolver) 
-            apply_solver(m_qsolver);
 
-	if (s().inconsistent())
+
+        if (s().inconsistent())
             return sat::check_result::CR_CONTINUE;
         if (cont)
             return sat::check_result::CR_CONTINUE;
+        if (m_qsolver)
+            apply_solver(m_qsolver);
         if (num_nodes < m_egraph.num_nodes()) {
             IF_VERBOSE(1, verbose_stream() << "new nodes created, but not detected\n");
-            return sat::check_result::CR_CONTINUE;           
+            return sat::check_result::CR_CONTINUE;
         }
         TRACE("after_search", s().display(tout););
         if (give_up)
@@ -868,7 +869,7 @@ namespace euf {
             if (b != sat::null_bool_var) {
                 m_bool_var2expr.setx(b, n->get_expr(), nullptr);
                 SASSERT(r->m.is_bool(n->get_sort()));
-                IF_VERBOSE(0, verbose_stream() << "set bool_var " << r->bpp(n) << "\n");
+                IF_VERBOSE(11, verbose_stream() << "set bool_var " << r->bpp(n) << "\n");
             }
         }
         for (auto* s_orig : m_id2solver) {
