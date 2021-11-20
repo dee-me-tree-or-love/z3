@@ -17,6 +17,7 @@ Revision History:
 
 --*/
 #include<iostream>
+#include<thread>
 #include "util/scoped_ctrl_c.h"
 #include "util/cancel_eh.h"
 #include "util/file_path.h"
@@ -158,10 +159,19 @@ extern "C" {
             init_solver_core(c, s);
     }
 
+
     static void init_solver_log(Z3_context c, Z3_solver s) {
+        static std::thread::id g_thread_id = std::this_thread::get_id();
+        static bool g_is_threaded = false;
         solver_params sp(to_solver(s)->m_params);
         symbol smt2log = sp.smtlib2_log();
         if (smt2log.is_non_empty_string() && !to_solver(s)->m_pp) {
+            if (g_is_threaded || g_thread_id != std::this_thread::get_id()) {
+                g_is_threaded = true;
+                std::ostringstream strm;
+                strm << smt2log << "-" << std::this_thread::get_id();
+                smt2log = symbol(strm.str());                
+            }
             to_solver(s)->m_pp = alloc(solver2smt2_pp, mk_c(c)->m(), smt2log.str());
         }
     }
