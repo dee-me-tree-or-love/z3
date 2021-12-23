@@ -108,8 +108,13 @@ public:
         m_tactic->user_propagate_register_diseq(diseq_eh);
     }
 
-    unsigned user_propagate_register(expr* e) override {
-        return m_tactic->user_propagate_register(e);
+    unsigned user_propagate_register_expr(expr* e) override {
+        return m_tactic->user_propagate_register_expr(e);
+    }
+
+    void user_propagate_clear() override {
+        if (m_tactic)
+            m_tactic->user_propagate_clear();
     }
 
 
@@ -148,6 +153,7 @@ tactic2solver::tactic2solver(ast_manager & m, tactic * t, params_ref const & p, 
 }
 
 tactic2solver::~tactic2solver() {
+    user_propagate_clear();
 }
 
 void tactic2solver::updt_params(params_ref const & p) {
