@@ -4809,7 +4809,7 @@ def Ext(a, b):
     """
     ctx = a.ctx
     if z3_debug():
-        _z3_assert(is_array_sort(a) and is_array(b), "arguments must be arrays")
+        _z3_assert(is_array_sort(a) and (is_array(b) or b.is_lambda()), "arguments must be arrays")
     return _to_expr_ref(Z3_mk_array_ext(ctx.ref(), a.as_ast(), b.as_ast()), ctx)
 
 
@@ -11064,6 +11064,11 @@ def Range(lo, hi, ctx=None):
     lo = _coerce_seq(lo, ctx)
     hi = _coerce_seq(hi, ctx)
     return ReRef(Z3_mk_re_range(lo.ctx_ref(), lo.ast, hi.ast), lo.ctx)
+
+def Diff(a, b, ctx=None):
+    """Create the difference regular epression
+    """
+    return ReRef(Z3_mk_re_diff(a.ctx_ref(), a.ast, b.ast), a.ctx)
 
 def AllChar(regex_sort, ctx=None):
     """Create a regular expression that accepts all single character strings

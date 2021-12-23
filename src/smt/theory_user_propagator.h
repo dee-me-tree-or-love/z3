@@ -56,6 +56,8 @@ namespace smt {
         user_propagator::fixed_eh_t     m_fixed_eh;
         user_propagator::eq_eh_t        m_eq_eh;
         user_propagator::eq_eh_t        m_diseq_eh;
+        user_propagator::created_eh_t m_created_eh;
+
         user_propagator::context_obj*   m_api_context = nullptr;
         unsigned               m_qhead = 0;
         uint_set               m_fixed;
@@ -94,16 +96,18 @@ namespace smt {
         void register_fixed(user_propagator::fixed_eh_t& fixed_eh) { m_fixed_eh = fixed_eh; }
         void register_eq(user_propagator::eq_eh_t& eq_eh) { m_eq_eh = eq_eh; }
         void register_diseq(user_propagator::eq_eh_t& diseq_eh) { m_diseq_eh = diseq_eh; }
+        void register_created(user_propagator::created_eh_t& created_eh) { m_created_eh = created_eh; }
 
         bool has_fixed() const { return (bool)m_fixed_eh; }
 
         void propagate_cb(unsigned num_fixed, unsigned const* fixed_ids, unsigned num_eqs, unsigned const* lhs, unsigned const* rhs, expr* conseq) override;
+        unsigned register_cb(expr* e) override;
 
         void new_fixed_eh(theory_var v, expr* value, unsigned num_lits, literal const* jlits);
 
         theory * mk_fresh(context * new_ctx) override;
-        bool internalize_atom(app * atom, bool gate_ctx) override { UNREACHABLE(); return false; }
-        bool internalize_term(app * term) override { UNREACHABLE(); return false; }
+        bool internalize_atom(app* atom, bool gate_ctx) override;
+        bool internalize_term(app* term) override;
         void new_eq_eh(theory_var v1, theory_var v2) override { if (m_eq_eh) m_eq_eh(m_user_context, this, v1, v2); }
         void new_diseq_eh(theory_var v1, theory_var v2) override { if (m_diseq_eh) m_diseq_eh(m_user_context, this, v1, v2); }
         bool use_diseqs() const override { return ((bool)m_diseq_eh); }
@@ -118,7 +122,7 @@ namespace smt {
         void collect_statistics(::statistics & st) const override;
         model_value_proc * mk_value(enode * n, model_generator & mg) override { return nullptr; }
         void init_model(model_generator & m) override {}
-        bool include_func_interp(func_decl* f) override { return false; }
+        bool include_func_interp(func_decl* f) override { return true; }
         bool can_propagate() override;
         void propagate() override; 
         void display(std::ostream& out) const override {}

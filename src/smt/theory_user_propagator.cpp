@@ -23,7 +23,7 @@ Author:
 using namespace smt;
 
 theory_user_propagator::theory_user_propagator(context& ctx):
-    theory(ctx, ctx.get_manager().mk_family_id("user_propagator"))
+    theory(ctx, ctx.get_manager().mk_family_id(user_propagator::plugin::name()))
 {}
 
 theory_user_propagator::~theory_user_propagator() {
@@ -57,6 +57,10 @@ void theory_user_propagator::propagate_cb(
     if (ctx.lit_internalized(conseq) && ctx.get_assignment(ctx.get_literal(conseq)) == l_true) 
         return;
     m_prop.push_back(prop_info(num_fixed, fixed_ids, num_eqs, eq_lhs, eq_rhs, expr_ref(conseq, m)));
+}
+
+unsigned theory_user_propagator::register_cb(expr* e) {
+    return add_expr(e);
 }
 
 theory * theory_user_propagator::mk_fresh(context * new_ctx) {
@@ -167,6 +171,20 @@ void theory_user_propagator::propagate() {
     }
     ctx.push_trail(value_trail<unsigned>(m_qhead));
     m_qhead = qhead;
+}
+
+
+bool theory_user_propagator::internalize_atom(app* atom, bool gate_ctx) {
+    return internalize_term(atom);
+}
+
+bool theory_user_propagator::internalize_term(app* term)  { 
+    for (auto arg : *term)
+        ensure_enode(arg);
+    unsigned v = add_expr(term);
+    if (m_created_eh)
+        m_created_eh(m_user_context, this, term, v);
+    return true;
 }
 
 void theory_user_propagator::collect_statistics(::statistics & st) const {

@@ -1192,6 +1192,9 @@ typedef enum {
     Z3_OP_SEQ_CONTAINS,
     Z3_OP_SEQ_EXTRACT,
     Z3_OP_SEQ_REPLACE,
+    Z3_OP_SEQ_REPLACE_RE,
+    Z3_OP_SEQ_REPLACE_RE_ALL,
+    Z3_OP_SEQ_REPLACE_ALL,
     Z3_OP_SEQ_AT,
     Z3_OP_SEQ_NTH,
     Z3_OP_SEQ_LENGTH,
@@ -1216,7 +1219,9 @@ typedef enum {
     Z3_OP_RE_UNION,
     Z3_OP_RE_RANGE,
     Z3_OP_RE_LOOP,
+    Z3_OP_RE_POWER,
     Z3_OP_RE_INTERSECT,
+    Z3_OP_RE_DIFF,
     Z3_OP_RE_EMPTY_SET,
     Z3_OP_RE_FULL_SET,
     Z3_OP_RE_COMPLEMENT,
@@ -1430,6 +1435,7 @@ typedef void* Z3_fresh_eh(void* ctx, Z3_context new_context);
 typedef void Z3_fixed_eh(void* ctx, Z3_solver_callback cb, unsigned id, Z3_ast value);
 typedef void Z3_eq_eh(void* ctx, Z3_solver_callback cb, unsigned x, unsigned y);
 typedef void Z3_final_eh(void* ctx, Z3_solver_callback cb);
+typedef void Z3_created_eh(void* ctx, Z3_solver_callback cb, Z3_ast e, unsigned id);
 
 
 /**
@@ -3488,8 +3494,8 @@ extern "C" {
        \brief Create a string constant out of the string that is passed in
        The string may contain escape encoding for non-printable characters
        or characters outside of the basic printable ASCII range. For example, 
-       the escape encoding \u{0} represents the character 0 and the encoding
-       \u{100} represents the character 256.
+       the escape encoding \\u{0} represents the character 0 and the encoding
+       \\u{100} represents the character 256.
 
        def_API('Z3_mk_string', AST, (_in(CONTEXT), _in(STRING)))
      */
@@ -3499,7 +3505,7 @@ extern "C" {
        \brief Create a string constant out of the string that is passed in
        It takes the length of the string as well to take into account
        0 characters. The string is treated as if it is unescaped so a sequence
-       of characters \u{0} is treated as 5 characters and not the character 0.
+       of characters \\u{0} is treated as 5 characters and not the character 0.
 
        def_API('Z3_mk_lstring', AST, (_in(CONTEXT), _in(UINT), _in(STRING)))
      */
@@ -3810,6 +3816,13 @@ extern "C" {
        def_API('Z3_mk_re_complement', AST ,(_in(CONTEXT), _in(AST)))
      */
     Z3_ast Z3_API Z3_mk_re_complement(Z3_context c, Z3_ast re);
+
+    /**
+       \brief Create the difference of regular expressions.
+
+       def_API('Z3_mk_re_diff', AST ,(_in(CONTEXT), _in(AST), _in(AST)))
+     */
+    Z3_ast Z3_API Z3_mk_re_diff(Z3_context c, Z3_ast re1, Z3_ast re2);
 
     /**
        \brief Create an empty regular expression of sort \c re.
@@ -6677,6 +6690,24 @@ extern "C" {
     void Z3_API Z3_solver_propagate_diseq(Z3_context c, Z3_solver s, Z3_eq_eh eq_eh);
 
     /**
+    * \brief register a callback when a new expression with a registered function is used by the solver 
+    * The registered function appears at the top level and is created using \ref Z3_propagate_solver_declare.
+    */
+    void Z3_API Z3_solver_propagate_created(Z3_context c, Z3_solver s, Z3_created_eh created_eh);
+
+    /**
+        Create uninterpreted function declaration for the user propagator.
+        When expressions using the function are created by the solver invoke a callback
+        to \ref \Z3_solver_progate_created with arguments
+        1. context and callback solve
+        2. declared_expr: expression using function that was used as the top-level symbol
+        3. declared_id: a unique identifier (unique within the current scope) to track the expression.
+     
+      def_API('Z3_solver_propagate_declare', FUNC_DECL, (_in(CONTEXT), _in(SYMBOL), _in(UINT), _in_array(2, SORT), _in(SORT)))
+    */
+    Z3_func_decl Z3_API Z3_solver_propagate_declare(Z3_context c, Z3_symbol name, unsigned n, Z3_sort* domain, Z3_sort range);
+
+    /**
        \brief register an expression to propagate on with the solver.
        Only expressions of type Bool and type Bit-Vector can be registered for propagation.
 
@@ -6684,6 +6715,16 @@ extern "C" {
     */
 
     unsigned Z3_API Z3_solver_propagate_register(Z3_context c, Z3_solver s, Z3_ast e);   
+
+    /**
+        \brief register an expression to propagate on with the solver.
+        Only expressions of type Bool and type Bit-Vector can be registered for propagation.
+        Unlike \ref Z3_solver_propagate_register, this function takes a solver callback context
+        as argument. It can be invoked during a callback to register new expressions.
+
+        def_API('Z3_solver_propagate_register_cb', UINT, (_in(CONTEXT), _in(SOLVER_CALLBACK), _in(AST)))
+    */
+    unsigned Z3_API Z3_solver_propagate_register_cb(Z3_context c, Z3_solver_callback cb, Z3_ast e);
 
     /**
        \brief propagate a consequence based on fixed values.
