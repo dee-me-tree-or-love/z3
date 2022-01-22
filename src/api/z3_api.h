@@ -1208,6 +1208,8 @@ typedef enum {
     Z3_OP_INT_TO_STR,
     Z3_OP_UBV_TO_STR,
     Z3_OP_SBV_TO_STR,
+    Z3_OP_STR_TO_CODE,
+    Z3_OP_STR_FROM_CODE,
     Z3_OP_STRING_LT,
     Z3_OP_STRING_LE,
 
@@ -1423,19 +1425,18 @@ typedef enum
 /**
    \brief Z3 custom error handler (See #Z3_set_error_handler).
 */
-typedef void Z3_error_handler(Z3_context c, Z3_error_code e);
-
+Z3_DECLARE_CLOSURE(Z3_error_handler, void, (Z3_context c, Z3_error_code e));
 
 /**
    \brief callback functions for user propagator.
 */
-typedef void Z3_push_eh(void* ctx);
-typedef void Z3_pop_eh(void* ctx, unsigned num_scopes);
-typedef void* Z3_fresh_eh(void* ctx, Z3_context new_context);
-typedef void Z3_fixed_eh(void* ctx, Z3_solver_callback cb, unsigned id, Z3_ast value);
-typedef void Z3_eq_eh(void* ctx, Z3_solver_callback cb, unsigned x, unsigned y);
-typedef void Z3_final_eh(void* ctx, Z3_solver_callback cb);
-typedef void Z3_created_eh(void* ctx, Z3_solver_callback cb, Z3_ast e, unsigned id);
+Z3_DECLARE_CLOSURE(Z3_push_eh,    void, (void* ctx));
+Z3_DECLARE_CLOSURE(Z3_pop_eh,     void, (void* ctx, unsigned num_scopes));
+Z3_DECLARE_CLOSURE(Z3_fresh_eh,   void*, (void* ctx, Z3_context new_context));
+Z3_DECLARE_CLOSURE(Z3_fixed_eh,   void, (void* ctx, Z3_solver_callback cb, unsigned id, Z3_ast value));
+Z3_DECLARE_CLOSURE(Z3_eq_eh,      void, (void* ctx, Z3_solver_callback cb, unsigned x, unsigned y));
+Z3_DECLARE_CLOSURE(Z3_final_eh,   void, (void* ctx, Z3_solver_callback cb));
+Z3_DECLARE_CLOSURE(Z3_created_eh, void, (void* ctx, Z3_solver_callback cb, Z3_ast e, unsigned id));
 
 
 /**
@@ -1516,7 +1517,7 @@ extern "C" {
 
        def_API('Z3_global_param_get', BOOL, (_in(STRING), _out(STRING)))
     */
-    Z3_bool_opt Z3_API Z3_global_param_get(Z3_string param_id, Z3_string_ptr param_value);
+    Z3_bool Z3_API Z3_global_param_get(Z3_string param_id, Z3_string_ptr param_value);
 
     /**@}*/
 
@@ -3708,6 +3709,21 @@ extern "C" {
      */
     Z3_ast Z3_API Z3_mk_int_to_str(Z3_context c, Z3_ast s);
 
+
+    /**
+       \brief String to code conversion.
+       
+       def_API('Z3_mk_string_to_code', AST, (_in(CONTEXT), _in(AST)))
+    */
+    Z3_ast Z3_API Z3_mk_string_to_code(Z3_context c, Z3_ast a);
+
+    /**
+       \brief Code to string conversion.
+       
+       def_API('Z3_mk_string_from_code', AST, (_in(CONTEXT), _in(AST)))
+    */
+    Z3_ast Z3_API Z3_mk_string_from_code(Z3_context c, Z3_ast a);
+
     /**
        \brief Unsigned bit-vector to string conversion.
 
@@ -3842,6 +3858,13 @@ extern "C" {
        def_API('Z3_mk_re_full', AST ,(_in(CONTEXT), _in(SORT)))
      */
     Z3_ast Z3_API Z3_mk_re_full(Z3_context c, Z3_sort re);
+
+
+    /**
+       \brief Create a character literal
+       def_API('Z3_mk_char', AST, (_in(CONTEXT), _in(UINT)))
+    */
+    Z3_ast Z3_API Z3_mk_char(Z3_context c, unsigned ch);
 
     /**
          \brief Create less than or equal to between two characters.
@@ -4325,7 +4348,7 @@ extern "C" {
 
         def_API('Z3_get_finite_domain_sort_size', BOOL, (_in(CONTEXT), _in(SORT), _out(UINT64)))
     */
-    Z3_bool_opt Z3_API Z3_get_finite_domain_sort_size(Z3_context c, Z3_sort s, uint64_t* r);
+    Z3_bool Z3_API Z3_get_finite_domain_sort_size(Z3_context c, Z3_sort s, uint64_t* r);
 
     /**
        \brief Return the domain of the given array sort.
@@ -5264,7 +5287,7 @@ extern "C" {
 
        def_API('Z3_model_eval', BOOL, (_in(CONTEXT), _in(MODEL), _in(AST), _in(BOOL), _out(AST)))
     */
-    Z3_bool_opt Z3_API Z3_model_eval(Z3_context c, Z3_model m, Z3_ast t, bool model_completion, Z3_ast * v);
+    Z3_bool Z3_API Z3_model_eval(Z3_context c, Z3_model m, Z3_ast t, bool model_completion, Z3_ast * v);
 
     /**
        \brief Return the interpretation (i.e., assignment) of constant \c a in the model \c m.
