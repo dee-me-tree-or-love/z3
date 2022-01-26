@@ -218,6 +218,8 @@ bool theory_user_propagator::internalize_term(app* term)  {
     
     unsigned v = add_expr(term);
 
+    if (!m_created_eh && (m_fixed_eh || m_eq_eh || m_diseq_eh))        
+        throw default_exception("You have to register a created event handler for new terms if you track them");
     if (m_created_eh)
         m_created_eh(m_user_context, this, term, v);
     return true;

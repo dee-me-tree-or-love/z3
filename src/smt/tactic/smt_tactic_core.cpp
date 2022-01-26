@@ -418,6 +418,7 @@ public:
             m_vars.push_back(e);
             m_internal2var.setx(i, j, 0);
             m_var2internal.setx(j, i, 0);
+            m_created_eh(ctx, cb, e, j);
         };
         m_ctx->user_propagate_register_created(i_created_eh);
     }
@@ -464,6 +465,7 @@ public:
         m_final_eh = nullptr;
         m_eq_eh = nullptr;
         m_diseq_eh = nullptr;
+        m_created_eh = nullptr;
     }
 
     void user_propagate_init(
@@ -500,7 +502,7 @@ public:
     }
 
     void user_propagate_register_created(user_propagator::created_eh_t& created_eh) override {
-        m_ctx->user_propagate_register_created(created_eh);
+        m_created_eh = created_eh;
     }
 };
 
